@@ -1,66 +1,33 @@
-const fs = require("fs").promises;
-const { nanoid } = require("nanoid");
+const { Schema, model } = require("mongoose");
 
-const contactsPath = "models/contacts.json";
+const { handleSaveError, handleUpdateValidate } = require("./hooks.js");
 
-const updateContacts = (contacts) =>
-  fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+const contactSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Set name for contact"],
+    },
+    email: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { versionKey: false, timestamps: true }
+);
 
-async function listContacts() {
-  const contacts = await fs.readFile(contactsPath, "utf-8");
+contactSchema.pre("findByIdAndUpdate", handleUpdateValidate);
 
-  return JSON.parse(contacts);
-}
+contactSchema.post("save", handleSaveError);
 
-async function getContactById(contactId) {
-  const contacts = await listContacts();
+contactSchema.post("findByIdAndUpdate", handleSaveError);
 
-  return contacts.find(({ id }) => id === contactId) || null;
-}
+const Contact = model("contact", contactSchema);
 
-async function removeContact(contactId) {
-  const contacts = await listContacts();
-  const removeIndex = contacts.findIndex(({ id }) => id === contactId);
-
-  if (removeIndex === -1) return null;
-
-  const [removedContact] = contacts.splice(removeIndex, 1);
-
-  await updateContacts(contacts);
-
-  return removedContact;
-}
-
-async function addContact(body) {
-  const contacts = (await listContacts()) || [];
-  const contactToAdd = { id: nanoid(), ...body };
-
-  contacts.push(contactToAdd);
-
-  await updateContacts(contacts);
-
-  return contactToAdd;
-}
-
-async function updateContact(contactId, body) {
-  const contacts = (await listContacts()) || [];
-  const updateIndex = contacts.findIndex(({ id }) => id === contactId);
-
-  if (updateIndex === -1) return null;
-
-  const contactToUpdate = { ...contacts[updateIndex], ...body };
-
-  contacts.splice(updateIndex, 1, contactToUpdate);
-
-  await updateContacts(contacts);
-
-  return contactToUpdate;
-}
-
-module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-};
+module.exports = Contact;
