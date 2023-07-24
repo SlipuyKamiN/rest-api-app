@@ -21,10 +21,11 @@ router.patch(
   ctrl.updateStatusContact
 );
 
-router.delete("/:contactId", ctrl.deleteById);
+router.delete("/:contactId", isValidId, ctrl.deleteById);
 
 router.put(
   "/:contactId",
+  isValidId,
   validateBody(schemas.emptySchema),
   validateBody(schemas.contactSchema),
   ctrl.updateById
