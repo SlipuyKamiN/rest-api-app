@@ -4,6 +4,13 @@ const emptySchema = Joi.object()
   .min(1)
   .messages({ "object.min": "Missing fields" });
 
+const isValidId = Joi.object({
+  favorite: Joi.boolean().required().messages({
+    "any.required": "missing field favorite",
+    "boolean.base": "Must be boolean type",
+  }),
+});
+
 const contactSchema = Joi.object({
   name: Joi.string().min(5).max(26).required().messages({
     "any.required": "missing required name field",
@@ -32,4 +39,5 @@ const contactSchema = Joi.object({
 module.exports = {
   emptySchema,
   contactSchema,
+  isValidId,
 };
