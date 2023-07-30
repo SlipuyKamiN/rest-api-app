@@ -6,12 +6,18 @@ const schemas = require("../../schemas/contacts");
 const { validateBody } = require("../../middlewares/validateBody");
 const isEmptyBody = require("../../middlewares/isEmptyBody");
 const isValidId = require("../../middlewares/isValidId");
+const { isValidToken } = require("../../middlewares/isValidToken");
 
 router.get("/", ctrl.getAll);
 
 router.get("/:contactId", isValidId, ctrl.getById);
 
-router.post("/", validateBody(schemas.contactSchema), ctrl.createNew);
+router.post(
+  "/",
+  isValidToken,
+  validateBody(schemas.contactSchema),
+  ctrl.createNew
+);
 
 router.patch(
   "/:contactId/favorite",
