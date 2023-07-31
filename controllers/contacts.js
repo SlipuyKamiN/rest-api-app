@@ -5,12 +5,16 @@ const { ctrlWrapper } = require("../utils/ctrlWrapper");
 
 const getAll = async (req, res) => {
   const owner = req.user._id;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, ...query } = req.query;
   const skip = (page - 1) * limit;
-  const data = await Contact.find({ owner }, "-createdAt -updatedAt", {
-    skip,
-    limit,
-  }).populate("owner");
+  const data = await Contact.find(
+    { owner, ...query },
+    "-createdAt -updatedAt",
+    {
+      skip,
+      limit,
+    }
+  ).populate("owner");
 
   res.json(data);
 };

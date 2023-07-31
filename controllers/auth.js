@@ -11,7 +11,7 @@ const { JWT_SECRET } = process.env;
 const register = async (req, res) => {
   const { body } = req;
 
-  const isUser = await User.findOne(body);
+  const isUser = await User.findOne({ email: body.email });
 
   if (isUser) throw HttpError(409, "Email in use");
 
@@ -28,9 +28,13 @@ const login = async (req, res) => {
 
   const user = await User.findOne({ email });
 
+  if (!user) {
+    throw HttpError(401, "Email or password is wrong");
+  }
+
   const passwordCompare = await bcryptjs.compare(password, user.password);
 
-  if (!user || !passwordCompare) {
+  if (!passwordCompare) {
     throw HttpError(401, "Email or password is wrong");
   }
 
@@ -39,6 +43,7 @@ const login = async (req, res) => {
   };
 
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "23h" });
+  await User.findByIdAndUpdate(user._id, { token });
 
   res.status(200).json({
     token,
@@ -46,7 +51,23 @@ const login = async (req, res) => {
   });
 };
 
+const getCurrent = (req, res) => {
+  const { email, subscription } = req.user;
+
+  res.json({ email, subscription });
+};
+
+const logOut = async (req, res) => {
+  const { _id } = req.user;
+
+  await User.findByIdAndUpdate(_id, { token: "" });
+
+  res.status(204).json();
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
+  getCurrent: ctrlWrapper(getCurrent),
+  logOut: ctrlWrapper(logOut),
 };

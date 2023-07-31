@@ -10,7 +10,7 @@ const usersSchema = new Schema(
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: [true, "missed required email field"],
       unique: true,
     },
     subscription: {
@@ -19,10 +19,6 @@ const usersSchema = new Schema(
       default: "starter",
     },
     token: String,
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: "user",
-    },
   },
   { versionKey: false, timestamps: true }
 );
