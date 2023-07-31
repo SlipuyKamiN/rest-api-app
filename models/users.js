@@ -10,7 +10,7 @@ const usersSchema = new Schema(
     },
     email: {
       type: String,
-      required: [true, "missed required email field"],
+      required: [true, "Missed required email field"],
       unique: true,
     },
     subscription: {

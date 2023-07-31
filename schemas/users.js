@@ -9,7 +9,7 @@ const usersSchema = Joi.object({
     .pattern(new RegExp("[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$"))
     .required()
     .messages({
-      "any.required": "Email is required",
+      "any.required": "Missed required email field",
       "string.pattern.base": "Wrong pattern",
     }),
   password: Joi.string().min(6).required().messages({
@@ -18,7 +18,18 @@ const usersSchema = Joi.object({
   }),
 });
 
+const subscriptionSchema = Joi.object({
+  subscription: Joi.string()
+    .valid("starter", "pro", "business")
+    .required()
+    .messages({
+      "any.required": "missing field subscription",
+      "any.only": "Must be one of [starter, pro, business] subscription type",
+    }),
+});
+
 module.exports = {
   emptySchema,
   usersSchema,
+  subscriptionSchema,
 };
