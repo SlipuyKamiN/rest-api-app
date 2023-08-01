@@ -6,6 +6,9 @@ const schemas = require("../../schemas/contacts");
 const { validateBody } = require("../../middlewares/validateBody");
 const isEmptyBody = require("../../middlewares/isEmptyBody");
 const isValidId = require("../../middlewares/isValidId");
+const { authenticate } = require("../../middlewares/authenticate");
+
+router.use(authenticate);
 
 router.get("/", ctrl.getAll);
 

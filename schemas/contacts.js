@@ -34,6 +34,7 @@ const contactSchema = Joi.object({
       "any.required": "missing required email field",
       "string.pattern.base": "Wrong pattern",
     }),
+  favorite: Joi.boolean(),
 });
 
 module.exports = {
