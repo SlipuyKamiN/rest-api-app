@@ -1,7 +1,11 @@
 const User = require("../models/users");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+const fs = require("fs/promises");
 require("dotenv/config");
+const gravatar = require("gravatar");
+const Jimp = require("jimp");
 
 const { HttpError } = require("../utils/HttpError");
 const { ctrlWrapper } = require("../utils/ctrlWrapper");
@@ -14,10 +18,14 @@ const register = async (req, res) => {
   const isUser = await User.findOne({ email: body.email });
 
   if (isUser) throw HttpError(409, "Email in use");
+  const avatarURL = gravatar.url(body.email, { s: "200" }, true);
+
+  console.log(avatarURL);
 
   const { email, subscription } = await User.create({
     email: body.email,
     password: await bcryptjs.hash(body.password, 10),
+    avatarURL,
   });
 
   res.status(201).json({ user: { email, subscription } });
@@ -80,10 +88,39 @@ const updateSubscription = async (req, res) => {
   res.json({ email: user.email, subscription: user.subscription });
 };
 
+const avatarPath = path.resolve("public", "avatars");
+
+const updateAvatar = async (req, res) => {
+  const {
+    user: { _id },
+    file: { path: oldPath, filename },
+  } = req;
+
+  const newPath = path.join(avatarPath, filename);
+
+  await Jimp.read(oldPath)
+    .then((lenna) => {
+      return lenna
+        .resize(250, 250)
+        .color([{ apply: "saturate", params: [60] }])
+        .write(newPath);
+    })
+    .catch(console.error);
+
+  fs.unlink(oldPath);
+
+  const avatarURL = path.join("avatars", filename);
+
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.json({ avatarURL });
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logOut: ctrlWrapper(logOut),
   updateSubscription: ctrlWrapper(updateSubscription),
+  updateAvatar: ctrlWrapper(updateAvatar),
 };
