@@ -2,10 +2,10 @@ FROM node
 
 WORKDIR /rest-api-app
 
-COPY . /rest-api-app/
+COPY . .
 
-RUN npm i
+RUN npm install
 
 EXPOSE 8999
 
-CMD [ "cross-env", "NODE_ENV=production", "node ./server.js" ]
+CMD [ "npx", "cross-env", "NODE_ENV=production", "node ./server.js" ]
