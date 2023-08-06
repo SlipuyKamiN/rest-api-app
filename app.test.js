@@ -5,12 +5,17 @@
 
 */
 
-const { login } = require("./controllers/users");
+const usersRouter = require("./routes/api/users");
+const app = require("./app");
+const request = require("supertest");
 
 describe("test login controller", () => {
-  test("Valid login data - status code 200", () => {
-    expect(
-      login({ body: { email: "snoop@doggie.dog", password: "AEZAKMI" } })
-    ).toBe({});
+  test("Valid login data - status code 200", async () => {
+    const res = await request(app)
+      .post("/users/login")
+      .send({ email: "scu02511@omeie.com", password: "AEZAKMI" });
+
+    console.log(res);
+    expect(res.statusCode).toBe(200);
   });
 });
